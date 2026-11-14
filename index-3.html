@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abandoned in Space – Act 1: The Moon</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d17;--deep:#03050b;--cy:#00f3ff;--gold:#ffb703;--ok:#39ff88;--bad:#ff4d6d;--glass:rgba(18,24,48,.6)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:radial-gradient(ellipse at 20% 10%,#1a1f4a55,transparent 55%),radial-gradient(ellipse at 85% 80%,#4a1a5a44,transparent 50%),var(--deep);color:#eef6ff;font:600 18px/1.55 Lexend,system-ui,sans-serif}
+#stars{position:fixed;inset:0;z-index:0;width:100%;height:100%}
+.screen{display:none;position:relative;z-index:1;min-height:100vh;padding:20px 16px 40px;max-width:980px;margin:0 auto;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.screen.on{display:flex;animation:slide .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes slide{from{opacity:0;transform:translateY(26px) scale(.98)}to{opacity:1;transform:none}}
+h1{font-weight:800;font-size:clamp(2rem,6vw,3.6rem);line-height:1.1;margin:0;text-align:center;color:#fff;text-shadow:0 0 28px #00f3ff88}
+h2{font-weight:800;font-size:clamp(1.4rem,4vw,2rem);margin:0;color:var(--gold)}
+p{margin:0}.sub{color:#b8c8e8;text-align:center;max-width:60ch}
+.panel{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid #00f3ff44;border-radius:22px;box-shadow:0 0 30px #00f3ff18,inset 0 0 40px #ffffff08;padding:20px;width:100%}
+.btn{font:800 1.1rem Lexend,sans-serif;min-height:58px;padding:12px 26px;border-radius:16px;border:2px solid var(--cy);background:#00f3ff1c;color:#fff;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;transition:transform .15s,box-shadow .2s,background .2s}
+.btn:hover,.btn:focus-visible{transform:scale(1.06);box-shadow:0 0 24px var(--cy);background:#00f3ff38;outline:none}
+.btn:active{transform:scale(.95)}
+.btn.gold{border-color:var(--gold);background:#ffb70322}.btn.gold:hover{box-shadow:0 0 24px var(--gold)}
+.btn.ghost{border-color:#ffffff44;background:transparent;min-height:46px;font-size:.95rem}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;width:100%}
+#grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;width:100%}
+.card{position:relative;text-align:left;cursor:pointer;border:1px solid #00f3ff55;background:var(--glass);backdrop-filter:blur(12px);border-radius:22px;padding:20px;color:#fff;font:inherit;transition:transform .2s,box-shadow .25s;min-height:190px}
+.card:hover:not(:disabled){transform:translateY(-6px) scale(1.03);box-shadow:0 0 30px #00f3ff77}
+.card:disabled{opacity:.45;cursor:not-allowed}
+.card .ic{font-size:2.6rem}.card b{display:block;font-size:1.25rem}.card small{color:#b8c8e8;font-weight:400}
+.dot{position:absolute;top:16px;right:16px;width:14px;height:14px;border-radius:50%;background:var(--cy);box-shadow:0 0 12px var(--cy);animation:pulse 1.6s infinite}
+.card.done .dot{background:var(--gold);box-shadow:0 0 12px var(--gold);animation:none}
+.card:disabled .dot{background:#666;box-shadow:none;animation:none}
+@keyframes pulse{50%{opacity:.35;transform:scale(.7)}}
+#prog{height:12px;border-radius:9px;background:#ffffff18;overflow:hidden;width:min(420px,90%)}
+#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--gold));transition:width .8s}
+.term{background:#02060dcc;border-color:#39ff8866;box-shadow:0 0 30px #39ff8822}
+.term .bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;color:var(--ok);font-weight:600;font-size:.9rem}
+.term .bar i{width:12px;height:12px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+#st-txt{white-space:pre-wrap;font:400 clamp(1rem,2.6vw,1.2rem)/1.7 Lexend,sans-serif;color:#d9ffe9;max-height:52vh;overflow:auto;min-height:220px;cursor:pointer}
+#st-txt::after{content:"▌";color:var(--ok);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:0}}
+canvas#cv{width:100%;height:auto;border-radius:16px;background:#02040a;border:1px solid #00f3ff44;touch-action:none}
+.hud{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:1.05rem}
+.hud span{padding:4px 14px;border-radius:99px;background:#ffffff12}
+.ok{color:var(--ok)}.warn{color:var(--bad)}
+.ctrl .btn{flex:1 1 90px;min-height:72px;font-size:1.3rem}
+#msg{min-height:1.6em;text-align:center;font-weight:800}
+.parts,.slots{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.part{font-size:2.2rem;min-width:84px;min-height:84px}.part.sel{border-color:var(--gold);box-shadow:0 0 22px var(--gold);transform:scale(1.1)}
+.slot{min-width:150px;min-height:110px;border:2px dashed #00f3ff88;border-radius:18px;background:#00f3ff0d;color:#fff;font:600 .95rem Lexend,sans-serif;padding:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:transform .15s}
+.slot:hover{transform:scale(1.05)}.slot .e{font-size:2.2rem}.slot.full{border-style:solid;border-color:var(--ok);background:#39ff8822}
+.shake{animation:shake .4s}@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.sl{display:flex;align-items:center;gap:12px;width:100%}.sl label{min-width:90px}
+input[type=range]{flex:1;height:44px;accent-color:var(--cy)}
+svg{width:100%;height:auto;border-radius:16px;background:#02040a;border:1px solid #00f3ff44}
+#win{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#03050bd9;text-align:center;padding:20px}
+#win.on{display:flex;animation:slide .5s}
+#win h1{color:var(--gold);text-shadow:0 0 30px var(--gold);animation:pop .8s}
+@keyframes pop{0%{transform:scale(.3)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#win>*:not(canvas){position:relative}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<section class="screen on" id="menu">
+  <p class="sub">Abandoned in Space</p>
+  <h1>Act 1: The Moon</h1>
+  <p class="sub">People left robots, rovers and landers on the Moon. Visit four missions, hear their stories, then take the controls!</p>
+  <div id="prog"><i></i></div>
+  <div id="grid"></div>
+</section>
+
+<section class="screen" id="story">
+  <div class="panel term">
+    <div class="bar"><i></i><span id="st-h"></span></div>
+    <div id="st-txt" title="Tap to show all the text"></div>
+  </div>
+  <div class="row">
+    <button class="btn ghost" id="st-back">Back to menu</button>
+    <button class="btn" id="st-skip">Skip story</button>
+    <button class="btn gold" id="st-go" hidden>Start the mission!</button>
+  </div>
+</section>
+
+<section class="screen" id="game">
+  <h2 id="g-t"></h2>
+  <p class="sub" id="g-i"></p>
+  <div class="panel" id="gbox" style="display:flex;flex-direction:column;gap:14px"></div>
+  <p id="msg"></p>
+  <button class="btn ghost" id="g-back">Back to menu</button>
+</section>
+
+<div id="win">
+  <canvas id="fx"></canvas>
+  <h1>Mission Accomplished!</h1>
+  <p class="sub" id="w-t" style="font-size:1.2rem"></p>
+  <div class="row"><button class="btn ghost" id="w-menu">Mission menu</button><button class="btn gold" id="w-next">Next mission</button></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const CH=[
+{n:"Apollo 11",sub:"Tranquility Base",ic:"🦅",g:"land",
+ t:"Land the Eagle gently on the Moon!",
+ i:"Hold THRUST to slow down. Touch down softer than 3.5 m/s while you stand over the glowing pad.",
+ w:"The Eagle has landed! Apollo 11 badge unlocked.",
+ s:`> INCOMING TRANSMISSION...\n\nWelcome, space explorer! It is July 20, 1969.\n\nTwo astronauts, Neil Armstrong and Buzz Aldrin, ride a spidery lander named Eagle down to the Moon. They touch down at a flat place called Tranquility Base.\n\nWhen they leave, they leave things behind on purpose. The bottom half of Eagle stays as a launch platform. A metal plaque on one leg says they came in peace for all humankind. A mirror-like reflector still bounces laser beams back to Earth, and a tiny seismometer listened for moonquakes for about three weeks.\n\nThose things are still up there today, sitting in the dust.\n\n> YOUR MISSION: land the Eagle softly.`},
+{n:"Apollo 12 & Surveyor 3",sub:"Pinpoint landing",ic:"🎯",g:"land2",
+ t:"Land right next to Surveyor 3!",
+ i:"THRUST slows you down. LEFT and RIGHT steer. Touch down slowly on the gold target by the robot probe.",
+ w:"Bullseye! Apollo 12 badge unlocked.",
+ s:`> INCOMING TRANSMISSION...\n\nIt is November 1969. Astronauts Pete Conrad and Alan Bean are flying Apollo 12.\n\nTheir challenge is huge: land close to Surveyor 3, a robot probe that landed on the Moon two and a half years earlier, with no people aboard.\n\nIf they can land near it, NASA can prove it can land exactly where it wants. Conrad and Bean walk to the old robot, take photos, and bring home its TV camera and a few parts so scientists can study how the Moon changed them.\n\nThe lander touches down only about 180 meters (600 feet) away!\n\n> YOUR MISSION: steer to the target and land softly.`},
+{n:"Apollo 15",sub:"The first Moon rover",ic:"🚙",g:"rover",
+ t:"Build the Lunar Roving Vehicle!",
+ i:"Tap a part, then tap the place on the rover that matches the clue.",
+ w:"Rover ready to roll! Apollo 15 badge unlocked.",
+ s:`> INCOMING TRANSMISSION...\n\nIt is July 1971. Apollo 15 astronauts David Scott and James Irwin bring something new: a car for the Moon!\n\nThe Lunar Roving Vehicle, or LRV, folds up flat inside the lander like a piece of furniture. On the Moon, the astronauts unfold it and drive off. It runs on batteries and has wire-mesh wheels that bounce over rocks.\n\nIts top speed is about 13 kilometers per hour. That is as fast as a kid on a bike, and it lets astronauts explore far from the lander.\n\nWhen they go home, the rover stays parked on the Moon. Three LRVs are still up there.\n\n> YOUR MISSION: put the rover together.`},
+{n:"Surveyor 3",sub:"The robot with a scoop",ic:"🤖",g:"scoop",
+ t:"Operate the Surveyor 3 scoop arm!",
+ i:"Move the sliders so the arm tip touches a gold ring. The tip glows green when it is close. Then press SCOOP.",
+ w:"Soil collected! Surveyor 3 badge unlocked.",
+ s:`> INCOMING TRANSMISSION... FLASHBACK\n\nLet's go back to April 1967, before any astronaut had walked on the Moon.\n\nSurveyor 3 is a robot with three legs, a TV camera and a small scoop on the end of an arm. It lands, bounces twice, and settles down.\n\nNASA needs to know one big thing: is the Moon's ground hard like concrete, or soft like a deep dust pit? Controllers on Earth steer the arm, press the scoop into the soil, dig little trenches and send back pictures.\n\nThe answer is that the ground is firm enough to land on. Two years later, people trusted that answer.\n\nSurveyor 3 is still there.\n\n> YOUR MISSION: use the arm to scoop three soil samples.`}
+];
+let done=[],cur=0,tm,full="",loop=0;
+try{done=JSON.parse(localStorage.getItem("act1")||"[]")}catch(e){}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("#"+id).classList.add("on");scrollTo(0,0);cancelAnimationFrame(loop)}
+function menu(){
+ $("#grid").innerHTML="";
+ CH.forEach((c,i)=>{
+  const ok=i==0||done.includes(i-1),b=document.createElement("button");
+  b.className="card"+(done.includes(i)?" done":"");b.disabled=!ok;
+  b.innerHTML=`<span class="dot"></span><span class="ic">${ok?c.ic:"🔒"}</span><b>${c.n}</b><small>${c.sub}</small><br><small>${done.includes(i)?"Completed":ok?"Ready to launch":"Finish the last mission first"}</small>`;
+  b.onclick=()=>story(i);$("#grid").append(b)});
+ $("#prog i").style.width=done.length*25+"%";show("menu")}
+function story(i){
+ cur=i;full=CH[i].s;let k=0;$("#st-h").textContent="MISSION LOG: "+CH[i].n;
+ $("#st-txt").textContent="";$("#st-go").hidden=true;show("story");clearInterval(tm);
+ tm=setInterval(()=>{k+=2;const t=$("#st-txt");t.textContent=full.slice(0,k);t.scrollTop=1e5;if(k>=full.length)fin()},22)}
+function fin(){clearInterval(tm);$("#st-txt").textContent=full;$("#st-go").hidden=false}
+$("#st-txt").onclick=fin;$("#st-skip").onclick=fin;
+$("#st-back").onclick=()=>{clearInterval(tm);menu()};$("#g-back").onclick=menu;
+$("#st-go").onclick=()=>{const c=CH[cur];$("#g-t").textContent=c.t;$("#g-i").textContent=c.i;$("#msg").textContent="";show("game");G[c.g]()};
+function msg(t,c){const m=$("#msg");m.textContent=t;m.className=c||""}
+
+/* ---- Mini-game 1 & 2: lunar landing ---- */
+const keys={};
+addEventListener("keydown",e=>{keys[e.code]=1;if(e.code=="Space"||e.code.startsWith("Arrow"))e.preventDefault()});
+addEventListener("keyup",e=>keys[e.code]=0);
+function lander(hard){
+ $("#gbox").innerHTML=`<div class="hud"><span id="h1"></span><span id="h2"></span></div><canvas id="cv" width="720" height="420"></canvas><div class="row ctrl">${hard?'<button class="btn" data-k="l">⬅ Left</button>':''}<button class="btn gold" data-k="t">🔥 THRUST</button>${hard?'<button class="btn" data-k="r">Right ➡</button>':''}</div>`;
+ const c=$("#cv"),x=c.getContext("2d"),W=720,H=420,gy=H-36,tx=hard?W*.72:W/2,hw=hard?34:80,b={};
+ document.querySelectorAll("[data-k]").forEach(el=>{const k=el.dataset.k,on=e=>{e.preventDefault();b[k]=1},off=()=>b[k]=0;
+  el.onpointerdown=on;el.onpointerup=el.onpointerleave=el.onpointercancel=off});
+ let L,last,pause=0;
+ const craters=Array.from({length:9},()=>[Math.random()*W,gy+8+Math.random()*20,10+Math.random()*22]);
+ function reset(){L={x:hard?90+Math.random()*120:W/2,y:50,vx:hard?Math.random()*40-20:0,vy:0,f:100};pause=0;msg("")}
+ reset();last=performance.now();
+ function tick(now){
+  const dt=Math.min((now-last)/1000,.05);last=now;
+  if(!pause){
+   const t=(b.t||keys.Space||keys.ArrowUp)&&L.f>0,l=hard&&(b.l||keys.ArrowLeft)&&L.f>0,r=hard&&(b.r||keys.ArrowRight)&&L.f>0;
+   L.vy+=30*dt;if(t){L.vy-=80*dt;L.f-=16*dt}
+   if(l){L.vx-=50*dt;L.f-=5*dt}if(r){L.vx+=50*dt;L.f-=5*dt}
+   L.x+=L.vx*dt;L.y+=L.vy*dt;L.x=Math.max(14,Math.min(W-14,L.x));L.L=l;L.R=r;L.t=t;
+   if(L.y>=gy-16){
+    const ok=L.vy<35&&Math.abs(L.vx)<22&&Math.abs(L.x-tx)<hw;pause=1;L.y=gy-16;
+    if(ok){msg("Perfect landing!","ok");setTimeout(()=>win(),700);return draw()}
+    msg(L.vy>=35?"Too fast! Use more thrust, sooner.":Math.abs(L.x-tx)>=hw?"Missed the pad. Try again!":"Too much sideways speed!","warn");
+    setTimeout(()=>{reset();last=performance.now()},1600)}
+  }
+  draw();loop=requestAnimationFrame(tick)}
+ function draw(){
+  x.clearRect(0,0,W,H);x.fillStyle="#9aa3b8";x.fillRect(0,gy,W,H-gy);
+  craters.forEach(q=>{x.fillStyle="#6b7388";x.beginPath();x.ellipse(q[0],q[1],q[2],q[2]/3,0,0,7);x.fill()});
+  x.fillStyle="#00f3ff";x.shadowColor="#00f3ff";x.shadowBlur=18;x.fillRect(tx-hw,gy-4,hw*2,5);x.shadowBlur=0;
+  if(hard){x.fillStyle="#cfd6e6";x.fillRect(tx+hw+16,gy-18,16,10);x.fillRect(tx+hw+14,gy-8,3,8);x.fillRect(tx+hw+30,gy-8,3,8);x.fillRect(tx+hw+22,gy-30,3,12);x.fillText&&0}
+  x.save();x.translate(L.x,L.y);
+  if(L.t&&!pause){x.fillStyle="#ffb703";x.shadowColor="#ff7b00";x.shadowBlur=20;x.beginPath();x.moveTo(-7,10);x.lineTo(7,10);x.lineTo(0,10+22+Math.random()*10);x.fill();x.shadowBlur=0}
+  if(L.L){x.fillStyle="#ffb703";x.fillRect(10,-6,12+Math.random()*6,4)}if(L.R){x.fillStyle="#ffb703";x.fillRect(-22-Math.random()*6,-6,12+6,4)}
+  x.fillStyle="#d9b24a";x.fillRect(-14,-8,28,16);x.fillStyle="#eef2fa";x.beginPath();x.arc(0,-12,10,Math.PI,0);x.fill();
+  x.strokeStyle="#eef2fa";x.lineWidth=3;x.beginPath();x.moveTo(-10,8);x.lineTo(-20,16);x.moveTo(10,8);x.lineTo(20,16);x.stroke();x.restore();
+  const safe=L.vy<35;$("#h1").innerHTML=`Speed <b class="${safe?'ok':'warn'}">${(Math.max(L.vy,0)/10).toFixed(1)} m/s</b> ${safe?"✔ safe":"✖ too fast"}`;
+  $("#h2").innerHTML=`Fuel <b class="${L.f<25?'warn':''}">${Math.max(0,L.f|0)}%</b>`}
+ loop=requestAnimationFrame(tick)}
+
+/* ---- Mini-game 3: rover ---- */
+function rover(){
+ const P=[["wheel","🛞","Wheel"],["bat","🔋","Battery"],["cam","📷","TV camera"],["ant","📡","Antenna"],["seat","💺","Seat"]],
+ S={wheel:"Rolls over rocks and dust",bat:"Gives the rover its power",cam:"Sends TV pictures to Earth",ant:"Lets the rover talk to Earth",seat:"A place for an astronaut to sit"};
+ let sel=null,n=0;
+ $("#gbox").innerHTML=`<div class="parts" id="pa"></div><div class="slots" id="sl"></div>`;
+ P.slice().sort(()=>Math.random()-.5).forEach(p=>{const b=document.createElement("button");b.className="btn part";b.innerHTML=p[1]+`<br><small style="font-size:.7rem">${p[2]}</small>`;b.setAttribute("aria-label",p[2]);
+  b.onclick=()=>{document.querySelectorAll(".part").forEach(q=>q.classList.remove("sel"));sel={p,b};b.classList.add("sel");msg("Now tap the clue that fits.")};$("#pa").append(b)});
+ P.forEach(p=>{const s=document.createElement("button");s.className="slot";s.innerHTML=`<span class="e">❔</span>${S[p[0]]}`;
+  s.onclick=()=>{if(s.classList.contains("full"))return;if(!sel)return msg("Pick a part first!");
+   if(sel.p[0]==p[0]){s.classList.add("full");s.querySelector(".e").textContent=p[1];sel.b.style.visibility="hidden";sel=null;msg("Click! It fits.","ok");if(++n==5)setTimeout(win,600)}
+   else{s.classList.remove("shake");void s.offsetWidth;s.classList.add("shake");msg("Not that one. Read the clue again!","warn")}};$("#sl").append(s)})}
+
+/* ---- Mini-game 4: scoop arm ---- */
+function scoop(){
+ const T=[[130,0],[190,0],[250,0]],PX=60,PY=50,GY=212;let got=0;
+ $("#gbox").innerHTML=`<svg viewBox="0 0 400 260" id="sv"></svg><div class="sl"><label>Arm angle</label><input id="an" type="range" min="10" max="85" value="30"></div><div class="sl"><label>Arm reach</label><input id="ex" type="range" min="0" max="100" value="20"></div><div class="row"><button class="btn gold" id="sc">🥄 SCOOP</button></div>`;
+ const tip=()=>{const a=$("#an").value*Math.PI/180,L=60+$("#ex").value*2.2;return[PX+L*Math.cos(a),PY+L*Math.sin(a)]};
+ const near=()=>T.findIndex(t=>!t[1]&&Math.hypot(tip()[0]-t[0],tip()[1]-GY)<16);
+ function draw(){const[tx,ty]=tip(),n=near();
+  $("#sv").innerHTML=`<rect y="${GY}" width="400" height="48" fill="#8f98ad"/>${T.map(t=>`<circle cx="${t[0]}" cy="${GY}" r="14" fill="none" stroke="${t[1]?'#39ff88':'#ffb703'}" stroke-width="4" stroke-dasharray="${t[1]?0:'6 4'}"/>`).join("")}<rect x="20" y="30" width="50" height="40" rx="6" fill="#cfd6e6"/><circle cx="${PX}" cy="${PY}" r="8" fill="#ffb703"/><line x1="${PX}" y1="${PY}" x2="${tx}" y2="${ty}" stroke="#eef2fa" stroke-width="7" stroke-linecap="round"/><circle cx="${tx}" cy="${ty}" r="10" fill="${n>=0?'#39ff88':'#00f3ff'}"/>`}
+ ["an","ex"].forEach(i=>$("#"+i).oninput=draw);
+ $("#sc").onclick=()=>{const n=near();if(n<0)return msg("Nothing under the scoop. Line it up with a gold ring!","warn");T[n][1]=1;got++;msg(`Sample ${got} of 3 collected!`,"ok");draw();if(got==3)setTimeout(win,700)};
+ draw()}
+const G={land:()=>lander(0),land2:()=>lander(1),rover,scoop};
+
+/* ---- Celebration ---- */
+function win(){
+ if(!done.includes(cur)){done.push(cur);try{localStorage.setItem("act1",JSON.stringify(done))}catch(e){}}
+ const last=done.length==4;$("#w-t").textContent=last?"Act 1 complete! You visited every Moon site. Act 2: Mars is coming soon.":CH[cur].w;
+ $("#w-next").style.display=last||cur==3?"none":"";$("#w-next").onclick=()=>{$("#win").classList.remove("on");story(cur+1)};
+ $("#w-menu").onclick=()=>{$("#win").classList.remove("on");menu()};$("#win").classList.add("on");confetti()}
+function confetti(){
+ const c=$("#fx"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;
+ const cols=["#00f3ff","#ffb703","#39ff88","#ff4d6d","#fff"],p=Array.from({length:150},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.6,v:2+Math.random()*4,s:5+Math.random()*8,c:cols[Math.random()*5|0],r:Math.random()*6,d:Math.random()*.2-.1,st:Math.random()<.3}));
+ let f=0;(function a(){x.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.y+=q.v;q.x+=Math.sin(q.y/30)*1.5;q.r+=q.d;x.save();x.translate(q.x,q.y);x.rotate(q.r);x.fillStyle=q.c;
+  if(q.st){x.font=q.s*2+"px sans-serif";x.fillText("✦",0,0)}else x.fillRect(-q.s/2,-q.s/2,q.s,q.s*.6);x.restore()});
+  if(++f<260&&$("#win").classList.contains("on"))requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height)})()}
+
+/* ---- Starfield ---- */
+(function(){const c=$("#stars"),x=c.getContext("2d");let S=[];
+ function rs(){c.width=innerWidth;c.height=innerHeight;S=Array.from({length:Math.min(220,innerWidth/4|0)},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.5+.3,t:Math.random()*6,v:.05+Math.random()*.25}))}
+ rs();addEventListener("resize",rs);const still=matchMedia("(prefers-reduced-motion:reduce)").matches;
+ (function a(){x.clearRect(0,0,c.width,c.height);S.forEach(s=>{s.t+=.03;if(!still){s.y+=s.v;if(s.y>c.height)s.y=0}x.globalAlpha=.4+.6*Math.abs(Math.sin(s.t));x.fillStyle=s.r>1.3?"#bff8ff":"#fff";x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fill()});requestAnimationFrame(a)})()})();
+menu();
+</script>
+</body>
+</html>

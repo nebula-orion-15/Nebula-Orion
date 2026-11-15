@@ -184,9 +184,13 @@ svg{width:100%;height:auto;border-radius:16px;background:#02040a;border:1px soli
 .hit:hover .rocks,.hit:focus-visible .rocks,.hit:active .rocks{filter:brightness(1.2) drop-shadow(0 0 10px rgba(var(--aura),.9))}
 #bhslot{display:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* Global watermark: fixed, bottom-left, behind the screens (z-index 0) so it never covers dialogue text */
+#wm-si{position:fixed;left:15px;bottom:15px;z-index:0;margin:0;pointer-events:none;user-select:none;font:500 11px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;letter-spacing:.08em;color:#7fe9ff;opacity:.45;text-shadow:0 0 6px #00f3ff55}
 /* Codec portrait (MGS-style) */
 .cdx{display:flex;gap:18px;align-items:flex-start}
-#cdx-p{position:relative;flex:0 0 auto;width:clamp(130px,24vw,250px);aspect-ratio:1;background:#000;overflow:hidden;border-radius:4px;box-shadow:0 0 22px #39ff8855,0 0 0 1px #39ff8855}
+.cdx-fig{flex:0 0 auto;width:clamp(130px,24vw,250px);display:flex;flex-direction:column;align-items:center;gap:6px}
+.cdx-credit{font:600 .62rem/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;letter-spacing:.06em;color:#39ff88;opacity:.6;text-align:center;user-select:none}
+#cdx-p{position:relative;width:100%;aspect-ratio:1;background:#000;overflow:hidden;border-radius:4px;box-shadow:0 0 22px #39ff8855,0 0 0 1px #39ff8855}
 #cdx-p img{display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
 #cdx-b{width:100%;height:100%}
 #cdx-p .mp{position:absolute;display:none}
@@ -317,7 +321,10 @@ html:has(#game.on),body:has(#game.on){height:100%;overflow:hidden}
   <div class="panel term notranslate" translate="no">
     <div class="bar"><i></i><span id="st-h"></span><button class="btn ghost" id="snd" aria-label="Toggle typing sound">🔊</button></div>
     <div class="cdx">
-      <div id="cdx-p" role="img" aria-label="" data-m="0"><img id="cdx-b" alt="" decoding="sync"><img id="cdx-1" class="mp m1" alt="" decoding="sync"><img id="cdx-2" class="mp m2" alt="" decoding="sync"></div>
+      <figure class="cdx-fig" style="margin:0">
+        <div id="cdx-p" role="img" aria-label="" data-m="0"><img id="cdx-b" alt="" decoding="sync"><img id="cdx-1" class="mp m1" alt="" decoding="sync"><img id="cdx-2" class="mp m2" alt="" decoding="sync"></div>
+        <figcaption class="cdx-credit">Made with the help of SI</figcaption>
+      </figure>
       <div class="cdt"><div id="st-txt" class="notranslate" translate="no"></div><button id="st-dn" type="button" aria-label="Back to the latest text" title="Back to the latest text">&#x25BC;</button></div>
     </div>
   </div>
@@ -396,6 +403,8 @@ html:has(#game.on),body:has(#game.on){height:100%;overflow:hidden}
   <div class="lockb" id="fm-b"></div>
   <button class="btn gold" id="fm-c">Close</button>
 </div></div>
+
+<div id="wm-si" aria-hidden="true">Made with the help of SI</div>
 
 <script>
 /* ---- This game was created by the team Nebula Orion 15 with the help of Claude Code-- */
